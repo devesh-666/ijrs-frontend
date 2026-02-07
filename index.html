@@ -2947,7 +2947,7 @@
 
     <script>
 function submitPaper() {
-  fetch("http://localhost:8081/wp-json/wp/v2/posts", {
+  fetch(`${process.env.NEXT_PUBLIC_WP_API}/wp/v2/posts`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
