@@ -1,3 +1,5 @@
+"use client";
+
 async function getPosts() {
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_WP_API}/posts`,
