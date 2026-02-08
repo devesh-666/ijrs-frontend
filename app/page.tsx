@@ -4,32 +4,49 @@ import { useEffect, useState } from "react";
 
 export default function Home() {
   const [posts, setPosts] = useState<any[]>([]);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_WP_API}/wp/v2/posts`)
-      .then((res) => {
+    const fetchPosts = async () => {
+      try {
+        const res = await fetch(
+          process.env.NEXT_PUBLIC_API_URL!
+        );
+
         if (!res.ok) {
-          throw new Error("Failed to fetch posts");
+          throw new Error("API not reachable");
         }
-        return res.json();
-      })
-      .then((data) => setPosts(data))
-      .catch((err) => setError(err.message));
+
+        const text = await res.text();
+
+        // Safety check
+        if (text.startsWith("<")) {
+          throw new Error("HTML received instead of JSON");
+        }
+
+        const data = JSON.parse(text);
+        setPosts(data);
+      } catch (err) {
+        console.error("Fetch error:", err);
+      }
+    };
+
+    fetchPosts();
   }, []);
 
-  if (error) return <p>Error: {error}</p>;
-  if (!posts.length) return <p>Loading...</p>;
-
   return (
-    <main>
-      <h1>Blog</h1>
+    <main style={{ padding: "20px" }}>
+      <h1>IJRS Posts</h1>
+
+      {posts.length === 0 && <p>No posts loaded</p>}
+
       {posts.map((post) => (
-        <article key={post.id}>
-          <h2
-            dangerouslySetInnerHTML={{ __html: post.title.rendered }}
+        <div key={post.id}>
+          <h3
+            dangerouslySetInnerHTML={{
+              __html: post.title.rendered,
+            }}
           />
-        </article>
+        </div>
       ))}
     </main>
   );
