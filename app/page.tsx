@@ -1,39 +1,34 @@
 "use client";
 
-async function getPosts() {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_WP_API}/posts`,
-    { cache: "no-store" }
-  );
+import { useEffect, useState } from "react";
 
-  if (!res.ok) {
-    throw new Error("Failed to fetch posts");
-  }
+export default function Home() {
+  const [posts, setPosts] = useState([]);
+  const [error, setError] = useState(null);
 
-  return res.json();
-}
+  useEffect(() => {
+    fetch(`${process.env.NEXT_PUBLIC_WP_API}/wp/v2/posts`)
+      .then((res) => {
+        if (!res.ok) throw new Error("API failed");
+        return res.json();
+      })
+      .then((data) => setPosts(data))
+      .catch((err) => setError(err.message));
+  }, []);
 
-export default async function Home() {
-  const posts = await getPosts();
+  if (error) return <p>Error: {error}</p>;
+  if (!posts.length) return <p>Loading...</p>;
 
   return (
-    <main style={{ padding: "2rem" }}>
-      <h1>International Journal of Research</h1>
-
-      {posts.map((post: any) => (
-        <article key={post.id} style={{ marginBottom: "2rem" }}>
+    <div>
+      <h1>Blog</h1>
+      {posts.map((post) => (
+        <div key={post.id}>
           <h2
-            dangerouslySetInnerHTML={{
-              __html: post.title.rendered,
-            }}
+            dangerouslySetInnerHTML={{ __html: post.title.rendered }}
           />
-          <div
-            dangerouslySetInnerHTML={{
-              __html: post.excerpt.rendered,
-            }}
-          />
-        </article>
+        </div>
       ))}
-    </main>
+    </div>
   );
 }
