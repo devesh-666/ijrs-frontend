@@ -6,6 +6,7 @@ export default function Home() {
   const [posts, setPosts] = useState<any[]>([]);
 
   useEffect(() => {
+    console.log("API URL:", process.env.NEXT_PUBLIC_API_URL);
     const fetchPosts = async () => {
       try {
         const res = await fetch(
